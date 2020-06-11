@@ -8,12 +8,17 @@ import requests
 
 class TelegramBot:
     BASE_URL = 'https://api.telegram.org'
-    STATE_FILE_PATH = '/home/jupyter/data/message_state.json'
-    CALLBACK_FILE_PATH = '/home/jupyter/data/callback_data.json'
 
-    def __init__(self, token: str) -> None:
+    def __init__(
+        self,
+        token: str,
+        state_file_path: str = '/tmp/message_state.json',
+        callback_file_path: str = '/tmp/callback_data.json'
+    ) -> None:
         self.token = token
         self.base_url = f'{self.BASE_URL}/bot{token}'
+        self.state_file_path = state_file_path
+        self.callback_file_path = callback_file_path
 
     def _save_message_state(self, message_id: int) -> None:
         get_update_id = itemgetter('update_id')
@@ -33,12 +38,12 @@ class TelegramBot:
         message_state['message_id'] = message_id
         message_state['offset'] = offset
 
-        with open(self.STATE_FILE_PATH, 'w') as f:
+        with open(self.state_file_path, 'w') as f:
             f.write(json.dumps(message_state))
 
     def _load_message_state(self) -> Dict:
         try:
-            with open(self.STATE_FILE_PATH, 'r') as f:
+            with open(self.state_file_path, 'r') as f:
                 message_state = json.loads(f.read())
         except FileNotFoundError:
             message_state = {}
@@ -49,11 +54,11 @@ class TelegramBot:
 
     def save_callback_query(self, callback_query: Dict) -> None:
         callback_query['timestamp'] = datetime.now().isoformat()
-        with open(self.CALLBACK_FILE_PATH, 'w') as f:
+        with open(self.callback_file_path, 'w') as f:
             f.write(json.dumps(callback_query))
 
     def load_callback_query(self) -> Dict:
-        with open(self.CALLBACK_FILE_PATH, 'r') as f:
+        with open(self.callback_file_path, 'r') as f:
             callback_query = json.loads(f.read())
         return callback_query
 
