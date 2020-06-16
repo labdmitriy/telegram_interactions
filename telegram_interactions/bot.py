@@ -91,6 +91,7 @@ class TelegramBot:
         response = requests.post(
             f'{self.base_url}/sendMessage', json=payload, timeout=5
         )
+        response.raise_for_status()
         print(response)
 
         message_info = response.json()
