@@ -100,6 +100,31 @@ class TelegramBot:
 
         return response.json()
 
+    def send_document(
+        self,
+        chat_id: Union[str, int],
+        caption: str,
+        document_path: str
+    ) -> Dict:
+        payload: Dict = {
+            'chat_id': chat_id,
+            'caption': caption
+        }
+
+        with open(document_path, 'rb') as f:
+            files = {'document': f}
+
+            response = requests.post(
+                f'{self.base_url}/sendDocument',
+                data=payload,
+                files=files,
+                timeout=5
+            )
+
+        response.raise_for_status()
+
+        return response.json()
+
     def get_updates(self, offset: int = 0, timeout: int = 0,
                     allowed_updates: Union[List, None] = None) -> Dict:
         payload: Dict = {
